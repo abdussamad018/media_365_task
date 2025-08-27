@@ -1,0 +1,21 @@
+/* Custom styles */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* Ensure proper spacing for Shopify Polaris components */
+.Polaris-Page {
+    min-height: 100vh;
+}
+
+/* Custom toast positioning */
+.Polaris-Toast {
+    z-index: 9999;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .Polaris-Page__Content {
+        padding: 1rem;
+    }
+}

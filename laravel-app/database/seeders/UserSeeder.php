@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
@@ -13,29 +13,44 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create sample users with different subscription tiers
-        User::create([
-            'name' => 'Free User',
-            'email' => 'free@example.com',
-            'subscription_tier' => 'free',
-            'quota_limit' => 50,
-            'quota_used' => 0,
-        ]);
+        // Create demo users with different subscription tiers
+        $users = [
+            [
+                'name' => 'Free User',
+                'email' => 'free@example.com',
+                'password' => Hash::make('password'),
+                'subscription_tier' => 'free',
+                'quota_limit' => 50,
+                'quota_used' => 0,
+            ],
+            [
+                'name' => 'Pro User',
+                'email' => 'pro@example.com',
+                'password' => Hash::make('password'),
+                'subscription_tier' => 'pro',
+                'quota_limit' => 100,
+                'quota_used' => 0,
+            ],
+            [
+                'name' => 'Enterprise User',
+                'email' => 'enterprise@example.com',
+                'password' => Hash::make('password'),
+                'subscription_tier' => 'enterprise',
+                'quota_limit' => 200,
+                'quota_used' => 0,
+            ],
+        ];
 
-        User::create([
-            'name' => 'Pro User',
-            'email' => 'pro@example.com',
-            'subscription_tier' => 'pro',
-            'quota_limit' => 100,
-            'quota_used' => 0,
-        ]);
+        foreach ($users as $userData) {
+            User::updateOrCreate(
+                ['email' => $userData['email']],
+                $userData
+            );
+        }
 
-        User::create([
-            'name' => 'Enterprise User',
-            'email' => 'enterprise@example.com',
-            'subscription_tier' => 'enterprise',
-            'quota_limit' => 200,
-            'quota_used' => 0,
-        ]);
+        $this->command->info('Demo users created successfully!');
+        $this->command->info('Free User: free@example.com (password: password)');
+        $this->command->info('Pro User: pro@example.com (password: password)');
+        $this->command->info('Enterprise User: enterprise@example.com (password: password)');
     }
 }
