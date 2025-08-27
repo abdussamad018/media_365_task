@@ -99,7 +99,7 @@ export default function Login() {
                         maxWidth: '1400px',
                         minHeight: '100vh',
                         display: 'flex',
-                        flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+                        flexDirection: 'row',
                         background: 'rgba(255, 255, 255, 0.95)',
                         backdropFilter: 'blur(20px)',
                         borderRadius: '16px',
@@ -107,6 +107,7 @@ export default function Login() {
                         border: '1px solid rgba(255, 255, 255, 0.2)',
                         overflow: 'hidden',
                     }}
+                    className="login-container"
                 >
                         {/* Left Side - Login Form */}
                         <div
@@ -183,7 +184,7 @@ export default function Login() {
                                             value={data.email}
                                             onChange={(value) => setData('email', value)}
                                             error={errors.email}
-                                            autoComplete="email"
+                                            autoComplete="new-email"
                                             required
                                             placeholder="Enter your email"
                                             labelHidden
@@ -198,7 +199,7 @@ export default function Login() {
                                             value={data.password}
                                             onChange={(value) => setData('password', value)}
                                             error={errors.password}
-                                            autoComplete="current-password"
+                                            autoComplete="new-password"
                                             required
                                             placeholder="Enter your password"
                                             labelHidden
