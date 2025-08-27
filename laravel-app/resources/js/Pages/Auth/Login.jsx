@@ -114,7 +114,7 @@ export default function Login() {
                             style={{
                                 flex: '1',
                                 minWidth: '500px',
-                                height: '100%',
+                            
                                 padding: '60px 40px',
                                 display: 'flex',
                                 flexDirection: 'column',
