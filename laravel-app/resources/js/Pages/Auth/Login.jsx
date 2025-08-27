@@ -113,30 +113,33 @@ export default function Login() {
                         <div
                             style={{
                                 flex: '1',
-                                minWidth: window.innerWidth <= 768 ? '100%' : '500px',
-                                height: window.innerWidth <= 768 ? 'auto' : '100%',
-                                padding: window.innerWidth <= 768 ? '40px 20px' : '60px 40px',
+                                minWidth: '500px',
+                                height: '100%',
+                                padding: '60px 40px',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 justifyContent: 'center',
                                 alignItems: 'center',
                                 background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                                borderBottom: window.innerWidth <= 768 ? '1px solid rgba(0, 0, 0, 0.1)' : 'none',
+                                borderBottom: 'none',
                             }}
+                            className="login-form-side"
                         >
                             <div style={{ 
                                 width: '100%', 
-                                maxWidth: window.innerWidth <= 768 ? '100%' : '450px' 
-                            }}>
+                                maxWidth: '450px' 
+                            }}
+                            className="login-form-container">
                                 {/* Header */}
                                 <div style={{ 
                                     textAlign: 'center', 
-                                    marginBottom: window.innerWidth <= 768 ? '30px' : '40px' 
-                                }}>
+                                    marginBottom: '40px' 
+                                }}
+                                className="login-header">
                                     <div
                                         style={{
-                                            width: window.innerWidth <= 768 ? '60px' : '80px',
-                                            height: window.innerWidth <= 768 ? '60px' : '80px',
+                                            width: '80px',
+                                            height: '80px',
                                             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                                             borderRadius: '50%',
                                             margin: '0 auto 20px',
@@ -145,32 +148,36 @@ export default function Login() {
                                             justifyContent: 'center',
                                             boxShadow: '0 8px 25px rgba(102, 126, 234, 0.3)',
                                         }}
+                                        className="login-icon"
                                     >
                                         <span style={{ 
                                             color: 'white', 
-                                            fontSize: window.innerWidth <= 768 ? '24px' : '32px', 
+                                            fontSize: '32px', 
                                             fontWeight: 'bold' 
-                                        }}>
+                                        }}
+                                        className="login-icon-text">
                                             🚀
                                         </span>
                                     </div>
                                     <h1
                                         style={{
-                                            fontSize: window.innerWidth <= 768 ? '24px' : '32px',
+                                            fontSize: '28px',
                                             fontWeight: '700',
                                             margin: '0 0 12px 0',
                                             color: '#1e293b',
                                             letterSpacing: '-0.5px',
                                         }}
+                                        className="login-title"
                                     >
                                         Welcome Back
                                     </h1>
                                     <p style={{
                                         color: '#64748b',
                                         margin: '0',
-                                        fontSize: window.innerWidth <= 768 ? '14px' : '16px',
+                                        fontSize: '16px',
                                         fontWeight: '400'
-                                    }}>
+                                    }}
+                                    className="login-subtitle">
                                         Sign in to your Bulk Thumbnail Processor account
                                     </p>
                                 </div>
@@ -280,30 +287,33 @@ export default function Login() {
                         <div
                             style={{
                                 flex: '1',
-                                minWidth: window.innerWidth <= 768 ? '100%' : '500px',
-                                height: window.innerWidth <= 768 ? 'auto' : '100%',
-                                padding: window.innerWidth <= 768 ? '40px 20px' : '60px 40px',
+                                minWidth: '500px',
+                                height: '100%',
+                                padding: '60px 40px',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 justifyContent: 'center',
                                 alignItems: 'center',
                                 background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-                                borderLeft: window.innerWidth <= 768 ? 'none' : '1px solid rgba(0, 0, 0, 0.1)',
+                                borderLeft: '1px solid rgba(0, 0, 0, 0.1)',
                             }}
+                            className="login-info-side"
                         >
                             <div style={{ 
                                 width: '100%', 
-                                maxWidth: window.innerWidth <= 768 ? '100%' : '500px' 
-                            }}>
+                                maxWidth: '500px' 
+                            }}
+                            className="login-info-container">
                                                                 {/* Demo Header */}
                                 <div style={{ 
                                     textAlign: 'center', 
-                                    marginBottom: window.innerWidth <= 768 ? '30px' : '40px' 
-                                }}>
+                                    marginBottom: '40px' 
+                                }}
+                                className="login-info-header">
                                     <div
                                         style={{
-                                            width: window.innerWidth <= 768 ? '60px' : '80px',
-                                            height: window.innerWidth <= 768 ? '60px' : '80px',
+                                            width: '80px',
+                                            height: '80px',
                                             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                                             borderRadius: '50%',
                                             margin: '0 auto 20px',
@@ -312,32 +322,36 @@ export default function Login() {
                                             justifyContent: 'center',
                                             boxShadow: '0 8px 25px rgba(102, 126, 234, 0.3)',
                                         }}
+                                        className="login-info-icon"
                                     >
                                         <span style={{ 
                                             color: 'white', 
-                                            fontSize: window.innerWidth <= 768 ? '24px' : '32px', 
+                                            fontSize: '32px', 
                                             fontWeight: 'bold' 
-                                        }}>
+                                        }}
+                                        className="login-info-icon-text">
                                             🎯
                                         </span>
                                     </div>
                                     <h2
                                         style={{
-                                            fontSize: window.innerWidth <= 768 ? '22px' : '28px',
+                                            fontSize: '28px',
                                             fontWeight: '700',
                                             margin: '0 0 12px 0',
                                             color: '#1e293b',
                                             letterSpacing: '-0.5px',
                                         }}
+                                        className="login-info-title"
                                     >
                                         Demo Accounts
                                     </h2>
                                     <p style={{ 
                                         color: '#64748b', 
                                         margin: '0',
-                                        fontSize: window.innerWidth <= 768 ? '14px' : '16px',
+                                        fontSize: '16px',
                                         fontWeight: '400'
-                                    }}>
+                                    }}
+                                    className="login-info-subtitle">
                                         Try our platform with these pre-configured accounts
                                     </p>
                                 </div>
@@ -370,41 +384,46 @@ export default function Login() {
                                         <div
                                             key={index}
                                             style={{
-                                                padding: window.innerWidth <= 768 ? '20px' : '28px',
+                                                padding: '28px',
                                                 background: account.color,
                                                 borderRadius: '16px',
                                                 border: `1px solid ${account.borderColor}`,
-                                                marginBottom: window.innerWidth <= 768 ? '16px' : '24px',
+                                                marginBottom: '24px',
                                                 position: 'relative',
                                                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
                                             }}
+                                            className="demo-account-card"
                                         >
                                             {/* Plan Header */}
                                             <div style={{
                                                 display: 'flex',
                                                 alignItems: 'center',
-                                                marginBottom: window.innerWidth <= 768 ? '16px' : '20px'
-                                            }}>
+                                                marginBottom: '20px'
+                                            }}
+                                            className="plan-header">
                                                 <span style={{
-                                                    fontSize: window.innerWidth <= 768 ? '24px' : '28px',
-                                                    marginRight: window.innerWidth <= 768 ? '12px' : '16px'
-                                                }}>
+                                                    fontSize: '28px',
+                                                    marginRight: '16px'
+                                                }}
+                                                className="plan-icon">
                                                     {account.icon}
                                                 </span>
-                                                <div>
+                                                <div className="plan-details">
                                                     <Text variant="headingMd" as="h3" style={{
                                                         color: account.textColor,
                                                         fontWeight: '700',
                                                         margin: '0 0 4px 0',
-                                                        fontSize: window.innerWidth <= 768 ? '18px' : '20px'
-                                                    }}>
+                                                        fontSize: '20px'
+                                                    }}
+                                                    className="plan-title">
                                                         {account.tier} Plan
                                                     </Text>
                                                     <Text variant="bodyMd" style={{
                                                         color: '#64748b',
                                                         margin: 0,
-                                                        fontSize: window.innerWidth <= 768 ? '12px' : '14px'
-                                                    }}>
+                                                        fontSize: '14px'
+                                                    }}
+                                                    className="plan-subtitle">
                                                         {account.quota} • {account.priority} Priority
                                                     </Text>
                                                 </div>
@@ -416,14 +435,15 @@ export default function Login() {
                                                 primary
                                                 onClick={() => useDemoAccount(account)}
                                                 style={{
-                                                    height: window.innerWidth <= 768 ? '44px' : '48px',
-                                                    fontSize: window.innerWidth <= 768 ? '14px' : '15px',
+                                                    height: '48px',
+                                                    fontSize: '15px',
                                                     fontWeight: '600',
                                                     borderRadius: '12px',
                                                     background: `linear-gradient(135deg, ${account.textColor} 0%, ${account.textColor}dd 100%)`,
                                                     border: 'none',
                                                     boxShadow: `0 4px 15px ${account.textColor}40`,
                                                 }}
+                                                className="use-account-button"
                                             >
                                                 🚀 Use This Account
                                             </Button>
@@ -433,25 +453,28 @@ export default function Login() {
 
                                 {/* Features Preview */}
                                 <div style={{
-                                    padding: window.innerWidth <= 768 ? '20px' : '24px',
+                                    padding: '24px',
                                     background: 'rgba(255, 255, 255, 0.8)',
                                     borderRadius: '16px',
                                     border: '1px solid rgba(0, 0, 0, 0.1)',
                                     textAlign: 'center'
-                                }}>
+                                }}
+                                className="features-preview">
                                     <Text variant="headingMd" as="h3" style={{
                                         color: '#1e293b',
                                         fontWeight: '600',
                                         margin: '0 0 16px 0',
-                                        fontSize: window.innerWidth <= 768 ? '18px' : '20px'
-                                    }}>
+                                        fontSize: '20px'
+                                    }}
+                                    className="features-title">
                                         ✨ What You'll Get
                                     </Text>
                                     <div style={{
-                                        fontSize: window.innerWidth <= 768 ? '13px' : '14px',
+                                        fontSize: '14px',
                                         color: '#64748b',
                                         lineHeight: '1.6'
-                                    }}>
+                                    }}
+                                    className="features-content">
                                         <div style={{ marginBottom: '8px' }}>
                                             🚀 <strong>Bulk Processing:</strong> Process multiple images simultaneously
                                         </div>
@@ -465,9 +488,101 @@ export default function Login() {
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            
+                                    </div>
+            </div>
+
+            <style jsx>{`
+                @media (max-width: 768px) {
+                    .login-container {
+                        flex-direction: column !important;
+                    }
+                    
+                    .login-form-side,
+                    .login-info-side {
+                        min-width: 100% !important;
+                        height: auto !important;
+                        padding: 40px 20px !important;
+                    }
+                    
+                    .login-form-side {
+                        border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+                    }
+                    
+                    .login-info-side {
+                        border-left: none !important;
+                    }
+                    
+                    .login-form-container,
+                    .login-info-container {
+                        max-width: 100% !important;
+                    }
+                    
+                    .login-header,
+                    .login-info-header {
+                        margin-bottom: 30px !important;
+                    }
+                    
+                    .login-icon,
+                    .login-info-icon {
+                        width: 60px !important;
+                        height: 60px !important;
+                    }
+                    
+                    .login-icon-text,
+                    .login-info-icon-text {
+                        font-size: 24px !important;
+                    }
+                    
+                    .login-title,
+                    .login-info-title {
+                        font-size: 24px !important;
+                    }
+                    
+                    .login-subtitle,
+                    .login-info-subtitle {
+                        font-size: 14px !important;
+                    }
+                    
+                    .demo-account-card {
+                        padding: 20px !important;
+                        margin-bottom: 16px !important;
+                    }
+                    
+                    .plan-header {
+                        margin-bottom: 16px !important;
+                    }
+                    
+                    .plan-icon {
+                        font-size: 24px !important;
+                        margin-right: 12px !important;
+                    }
+                    
+                    .plan-title {
+                        font-size: 18px !important;
+                    }
+                    
+                    .plan-subtitle {
+                        font-size: 12px !important;
+                    }
+                    
+                    .use-account-button {
+                        height: 44px !important;
+                        font-size: 14px !important;
+                    }
+                    
+                    .features-preview {
+                        padding: 20px !important;
+                    }
+                    
+                    .features-title {
+                        font-size: 18px !important;
+                    }
+                    
+                    .features-content {
+                        font-size: 13px !important;
+                    }
+                }
+            `}</style>
         </>
     );
 }
