@@ -10,9 +10,19 @@ php artisan serve
 ```
 Your app will be available at: `http://localhost:8000`
 
-### 2. **Start Queue Worker** (in new terminal)
+### 2. **Start Priority Queue Worker** (in new terminal)
 ```bash
-php artisan queue:work --queue=thumbnails
+# Start priority-based processing (Enterprise → Pro → Free)
+php artisan queue:work --queue=enterprise,pro,free
+
+# Or start with verbose output
+php artisan queue:work --queue=enterprise,pro,free --verbose
+
+# Monitor queue status
+php artisan queue:monitor-priority
+
+# Live monitoring
+php artisan queue:monitor-priority --live
 ```
 
 ### 3. **Login with Demo Account**

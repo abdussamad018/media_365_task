@@ -42,6 +42,31 @@ return [
             'retry_after' => 90,
             'after_commit' => false,
         ],
+        
+        // Priority-based queues for different subscription tiers
+        'enterprise' => [
+            'driver' => 'database',
+            'table' => 'jobs',
+            'queue' => 'enterprise',
+            'retry_after' => 90,
+            'after_commit' => false,
+        ],
+        
+        'pro' => [
+            'driver' => 'database',
+            'table' => 'jobs',
+            'queue' => 'pro',
+            'retry_after' => 90,
+            'after_commit' => false,
+        ],
+        
+        'free' => [
+            'driver' => 'database',
+            'table' => 'jobs',
+            'queue' => 'free',
+            'retry_after' => 90,
+            'after_commit' => false,
+        ],
 
         'beanstalkd' => [
             'driver' => 'beanstalkd',
@@ -91,6 +116,22 @@ return [
         'driver' => env('QUEUE_FAILED_DRIVER', 'database-uuids'),
         'database' => env('DB_CONNECTION', 'mysql'),
         'table' => 'failed_jobs',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Queue Priority Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Define the priority order for processing queues.
+    | Higher priority queues are processed first.
+    |
+    */
+    
+    'priority_queues' => [
+        'enterprise',  // Highest priority (3x)
+        'pro',         // Medium priority (2x)
+        'free',        // Lowest priority (1x)
     ],
 
 ];

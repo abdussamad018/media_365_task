@@ -649,6 +649,13 @@ php artisan queue:work --verbose
 
 # Restart queue workers
 php artisan queue:restart
+
+# Priority-based queue processing
+php artisan queue:work --queue=enterprise,pro,free
+
+# Monitor priority queues
+php artisan queue:monitor-priority
+php artisan queue:monitor-priority --live
 ```
 
 ### Debug Mode

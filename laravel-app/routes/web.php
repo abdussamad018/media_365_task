@@ -87,6 +87,36 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/thumbnails', [ThumbnailController::class, 'store'])->name('thumbnails.store');
     Route::get('/thumbnails/{bulkRequest}/status', [ThumbnailController::class, 'status'])->name('thumbnails.status');
     Route::get('/thumbnails/results', [ThumbnailController::class, 'results'])->name('thumbnails.results');
+    Route::get('/thumbnails/all-images', [ThumbnailController::class, 'allImages'])->name('thumbnails.all-images');
+    
+    // Debug route for testing
+    Route::get('/debug/thumbnails', function() {
+        $user = auth()->user();
+        if (!$user) return response()->json(['error' => 'Not authenticated']);
+        
+        $bulkRequests = $user->bulkRequests()->with('imageThumbnails')->get();
+        return response()->json([
+            'user_id' => $user->id,
+            'bulk_requests_count' => $bulkRequests->count(),
+            'bulk_requests' => $bulkRequests->map(function($req) {
+                return [
+                    'id' => $req->id,
+                    'total_images' => $req->total_images,
+                    'processed_images' => $req->processed_images,
+                    'failed_images' => $req->failed_images,
+                    'image_thumbnails_count' => $req->imageThumbnails->count(),
+                    'image_thumbnails' => $req->imageThumbnails->take(3)->map(function($thumb) {
+                        return [
+                            'id' => $thumb->id,
+                            'image_url' => $thumb->image_url,
+                            'status' => $thumb->status,
+                            'created_at' => $thumb->created_at
+                        ];
+                    })
+                ];
+            })
+        ]);
+    });
     
 
     
@@ -97,4 +127,7 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
     Route::patch('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
     Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    
+    // Queue status endpoint
+    Route::get('/queue/status', [ThumbnailController::class, 'queueStatus'])->name('queue.status');
 });

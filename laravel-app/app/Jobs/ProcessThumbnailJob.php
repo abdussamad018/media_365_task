@@ -26,9 +26,26 @@ class ProcessThumbnailJob implements ShouldQueue
         public ImageThumbnail $imageThumbnail,
         public int $priority = 1
     ) {
-        $this->onQueue('thumbnails');
+        // Automatically assign queue based on priority
+        $queueName = $this->getQueueNameByPriority($priority);
+        $this->onQueue($queueName);
         $this->priority = $priority;
     }
+    
+    /**
+     * Get queue name based on priority level
+     */
+    private function getQueueNameByPriority(int $priority): string
+    {
+        return match($priority) {
+            3 => 'enterprise',
+            2 => 'pro',
+            1 => 'free',
+            default => 'free',
+        };
+    }
+    
+
 
     /**
      * Execute the job.
