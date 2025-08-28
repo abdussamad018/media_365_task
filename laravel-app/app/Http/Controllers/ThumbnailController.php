@@ -32,10 +32,10 @@ class ThumbnailController extends Controller
         $imageUrls = array_filter(explode("\n", $request->image_urls));
         $totalImages = count($imageUrls);
 
-        // Check quota
-        if (!$user->hasQuotaAvailable($totalImages)) {
+        // Check per-request limit (not total quota)
+        if ($totalImages > $user->quota_limit) {
             return response()->json([
-                'error' => "Quota exceeded. You can process up to {$user->quota_limit} images per request. You have {$user->quota_used} used and trying to add {$totalImages} more."
+                'error' => "Request limit exceeded. You can process up to {$user->quota_limit} images per request. You're trying to add {$totalImages} images."
             ], 403);
         }
 
@@ -63,8 +63,8 @@ class ThumbnailController extends Controller
                 }
             }
 
-            // Update user quota
-            $user->increment('quota_used', $totalImages);
+            // Don't update user quota - it's per-request, not total
+            // $user->increment('quota_used', $totalImages);
 
             DB::commit();
 
@@ -138,16 +138,43 @@ class ThumbnailController extends Controller
     }
 
     /**
-     * Dispatch thumbnail processing jobs
+     * Dispatch thumbnail processing jobs with priority-based processing
      */
     private function dispatchThumbnailJobs(BulkRequest $bulkRequest): void
     {
         $priority = $bulkRequest->priority;
+        
+        // Log priority information
+        \Log::info('Dispatching thumbnail jobs', [
+            'bulk_request_id' => $bulkRequest->id,
+            'user_id' => $bulkRequest->user_id,
+            'priority' => $priority,
+            'total_images' => $bulkRequest->total_images,
+            'user_tier' => $bulkRequest->user->subscription_tier ?? 'unknown'
+        ]);
 
-        foreach ($bulkRequest->imageThumbnails as $imageThumbnail) {
-            ProcessThumbnailJob::dispatch($imageThumbnail, $priority)
+        foreach ($bulkRequest->imageThumbnails as $index => $imageThumbnail) {
+            // Priority-based delay: higher priority users get faster processing
+            $baseDelay = rand(1, 10); // Base delay 1-10 seconds
+            $priorityDelay = max(0, $baseDelay - ($priority - 1) * 2); // Priority reduces delay
+            
+            // Create job with priority
+            $job = ProcessThumbnailJob::dispatch($imageThumbnail, $priority)
                 ->onQueue('thumbnails')
-                ->delay(now()->addSeconds(rand(1, 10))); // Random delay for simulation
+                ->delay(now()->addSeconds($priorityDelay));
+            
+            // Set job priority for queue processing
+            if (method_exists($job, 'priority')) {
+                $job->priority($priority);
+            }
+            
+            // Log job dispatch
+            \Log::info('Job dispatched', [
+                'image_thumbnail_id' => $imageThumbnail->id,
+                'priority' => $priority,
+                'delay' => $priorityDelay,
+                'queue' => 'thumbnails'
+            ]);
         }
     }
 }

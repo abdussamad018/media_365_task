@@ -55,14 +55,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user has quota available.
-     */
-    public function hasQuotaAvailable(int $count): bool
-    {
-        return ($this->quota_used + $count) <= $this->quota_limit;
-    }
-
-    /**
      * Get priority multiplier based on subscription tier.
      */
     public function getPriorityMultiplier(): int

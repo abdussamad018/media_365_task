@@ -46,7 +46,6 @@ class HandleInertiaRequests extends Middleware
                 'email' => $user->email,
                 'subscription_tier' => $user->subscription_tier,
                 'quota_limit' => $user->quota_limit,
-                'quota_used' => $user->quota_used,
             ];
         }
 

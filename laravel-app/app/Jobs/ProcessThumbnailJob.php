@@ -3,6 +3,8 @@
 namespace App\Jobs;
 
 use App\Models\ImageThumbnail;
+use App\Notifications\ThumbnailReadyNotification;
+use App\Notifications\BulkRequestCompletedNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -55,6 +57,9 @@ class ProcessThumbnailJob implements ShouldQueue
                 ]);
             }
 
+            // Send notification to user about thumbnail completion
+            $this->sendThumbnailNotification();
+
             // Update bulk request counters
             $this->updateBulkRequestCounters();
 
@@ -70,22 +75,44 @@ class ProcessThumbnailJob implements ShouldQueue
                 'processed_at' => now(),
             ]);
 
+            // Send notification about failure
+            $this->sendThumbnailNotification();
+
             $this->updateBulkRequestCounters();
         }
     }
 
     /**
-     * Simulate Node.js service processing with delay
+     * Simulate Node.js service processing with priority-based delays
      */
     private function simulateNodeServiceProcessing(): void
     {
-        // Simulate processing time (1-5 seconds)
-        $processingTime = rand(1, 5);
+        // Priority-based processing time (higher priority = faster processing)
+        // Base processing time: 1-5 seconds
+        $baseProcessingTime = rand(1, 5);
+        
+        // Priority multiplier: higher priority = faster processing
+        $priorityMultiplier = 1 / $this->priority; // 1x, 0.5x, 0.33x
+        
+        // Calculate final processing time
+        $processingTime = max(1, round($baseProcessingTime * $priorityMultiplier));
+        
+        // Log priority processing information
+        Log::info('Processing thumbnail with priority', [
+            'image_thumbnail_id' => $this->imageThumbnail->id,
+            'priority' => $this->priority,
+            'base_time' => $baseProcessingTime,
+            'final_time' => $processingTime,
+            'user_tier' => $this->imageThumbnail->bulkRequest->user->subscription_tier ?? 'unknown'
+        ]);
+        
+        // Simulate processing time
         sleep($processingTime);
 
-        // Simulate occasional service errors
-        if (rand(1, 100) <= 5) {
-            throw new \Exception('Simulated Node.js service error');
+        // Simulate occasional service errors (lower chance for higher priority users)
+        $errorChance = max(1, 5 / $this->priority); // 5%, 2.5%, 1.67%
+        if (rand(1, 100) <= $errorChance) {
+            throw new \Exception('Simulated Node.js service error (Priority: ' . $this->priority . ')');
         }
     }
 
@@ -115,6 +142,41 @@ class ProcessThumbnailJob implements ShouldQueue
             $bulkRequest->update([
                 'status' => 'completed',
                 'completed_at' => now(),
+            ]);
+
+            // Send notification about bulk request completion
+            $this->sendBulkRequestCompletionNotification($bulkRequest);
+        }
+    }
+
+    /**
+     * Send notification about thumbnail completion
+     */
+    private function sendThumbnailNotification(): void
+    {
+        try {
+            $user = $this->imageThumbnail->bulkRequest->user;
+            $user->notify(new ThumbnailReadyNotification($this->imageThumbnail));
+        } catch (\Exception $e) {
+            Log::error('Failed to send thumbnail notification', [
+                'image_thumbnail_id' => $this->imageThumbnail->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Send notification about bulk request completion
+     */
+    private function sendBulkRequestCompletionNotification(BulkRequest $bulkRequest): void
+    {
+        try {
+            $user = $bulkRequest->user;
+            $user->notify(new BulkRequestCompletedNotification($bulkRequest));
+        } catch (\Exception $e) {
+            Log::error('Failed to send bulk request completion notification', [
+                'bulk_request_id' => $bulkRequest->id,
+                'error' => $e->getMessage()
             ]);
         }
     }

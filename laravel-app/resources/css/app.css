@@ -13,6 +13,10 @@ body {
     z-index: 9999;
 }
 
+.mb-5 {
+    margin-bottom: 1.25rem !important;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .Polaris-Page__Content {

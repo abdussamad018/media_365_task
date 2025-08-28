@@ -21,7 +21,6 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'subscription_tier' => 'free',
                 'quota_limit' => 50,
-                'quota_used' => 0,
             ],
             [
                 'name' => 'Pro User',
@@ -29,7 +28,6 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'subscription_tier' => 'pro',
                 'quota_limit' => 100,
-                'quota_used' => 0,
             ],
             [
                 'name' => 'Enterprise User',
@@ -37,7 +35,6 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'subscription_tier' => 'enterprise',
                 'quota_limit' => 200,
-                'quota_used' => 0,
             ],
         ];
 

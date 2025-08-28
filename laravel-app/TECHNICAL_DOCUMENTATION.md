@@ -238,6 +238,44 @@ const containerStyle = {
 
 ## 🔐 Authentication System
 
+### Notification System
+
+The application includes a comprehensive notification system that keeps users informed about their thumbnail processing status:
+
+#### Notification Types
+- **ThumbnailReadyNotification**: Sent when individual thumbnails are processed (success/failure)
+- **BulkRequestCompletedNotification**: Sent when entire bulk requests are completed
+
+#### Notification Channels
+- **Database**: Stored in notifications table for in-app display
+- **Email**: Sent via Laravel's mail system (configurable)
+
+#### Notification Features
+- Real-time unread count updates
+- Notification preferences management
+- Mark as read/unread functionality
+- Notification history and statistics
+- Toast notifications for new alerts
+
+#### Notification Components
+- **NotificationBell**: Main notification interface with popover
+- **NotificationSettings**: User preference management
+- **NotificationController**: Backend API endpoints
+
+#### Database Schema
+```sql
+CREATE TABLE notifications (
+    id UUID PRIMARY KEY,
+    type VARCHAR(255) NOT NULL,
+    notifiable_type VARCHAR(255) NOT NULL,
+    notifiable_id BIGINT UNSIGNED NOT NULL,
+    data TEXT NOT NULL,
+    read_at TIMESTAMP NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL
+);
+```
+
 ### Authentication Flow
 1. **User Registration**
    - Form validation

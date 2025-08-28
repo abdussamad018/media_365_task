@@ -91,7 +91,6 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'subscription_tier' => $request->subscription_tier,
             'quota_limit' => $quotaLimit,
-            'quota_used' => 0,
         ]);
 
         Auth::login($user);

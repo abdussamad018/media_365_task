@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ThumbnailController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\NotificationController;
 use Inertia\Inertia;
 
 /*
@@ -86,4 +87,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/thumbnails', [ThumbnailController::class, 'store'])->name('thumbnails.store');
     Route::get('/thumbnails/{bulkRequest}/status', [ThumbnailController::class, 'status'])->name('thumbnails.status');
     Route::get('/thumbnails/results', [ThumbnailController::class, 'results'])->name('thumbnails.results');
+    
+
+    
+    // Notification endpoints
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/stats', [NotificationController::class, 'stats'])->name('notifications.stats');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
+    Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::patch('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 });
