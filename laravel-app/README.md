@@ -16,8 +16,8 @@ A modern, enterprise-grade web application built with Laravel, Inertia.js, and R
 ## 🛠️ Tech Stack
 
 ### Backend
-- **Laravel 11** - PHP framework for robust backend development
-- **MySQL/PostgreSQL** - Database management with migrations
+- **Laravel 10** - PHP framework for robust backend development
+- **MySQL** - Database management with migrations
 - **Laravel Queue** - Background job processing with priority-based queues
 - **Laravel Sanctum** - API authentication and session management
 - **Laravel Notifications** - User notification system
@@ -40,7 +40,7 @@ A modern, enterprise-grade web application built with Laravel, Inertia.js, and R
 - PHP 8.2+
 - Composer
 - Node.js 18+
-- MySQL/PostgreSQL
+- MySQL
 - XAMPP/WAMP (for local development)
 
 ### Installation
@@ -77,7 +77,7 @@ A modern, enterprise-grade web application built with Laravel, Inertia.js, and R
 6. **Queue setup**
    ```bash
    # Start queue worker for background processing
-   php artisan queue:work --queue=enterprise,pro,free
+   php artisan queue:work --queue=enterprise,pro,free,default
    ```
 
 7. **Build assets**
@@ -220,49 +220,7 @@ The application uses priority-based queues:
 - Progress tracking for bulk requests
 - User notifications for completed requests
 
-## 🚀 Deployment
 
-### Production Requirements
-- PHP 8.2+
-- Composer
-- Node.js 18+
-- MySQL/PostgreSQL
-- Redis (for queues)
-- Web server (Nginx/Apache)
-
-### Deployment Steps
-1. Set `APP_ENV=production`
-2. Configure production database
-3. Run `php artisan migrate --force`
-4. Build production assets: `npm run build`
-5. Configure web server
-6. Set up SSL certificates
-7. Configure queue workers for production
-
-## 🧪 Testing
-
-### Running Tests
-```bash
-# PHP tests
-php artisan test
-
-# Frontend tests
-npm run test
-```
-
-### Test Coverage
-- Feature tests for authentication
-- Unit tests for models and jobs
-- Queue processing tests
-- Frontend component testing
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
 
 ## 📝 License
 
@@ -274,17 +232,6 @@ For support and questions:
 - Create an issue in the repository
 - Check the technical documentation
 - Review the code examples
-
-## 🔄 Changelog
-
-### Version 1.0.0
-- Initial release with priority queue system
-- Authentication system with subscription tiers
-- Responsive UI design using Shopify Polaris
-- Background job processing with Laravel Queue
-- Real-time status updates and notifications
-
----
 
 **Built with ❤️ using Laravel, Inertia.js, and React**
 
