@@ -29,7 +29,7 @@ class BulkRequestCompletedNotification extends Notification implements ShouldQue
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        return ['database'];
     }
 
     /**
@@ -75,7 +75,7 @@ class BulkRequestCompletedNotification extends Notification implements ShouldQue
             'processed_images' => $processedImages,
             'failed_images' => $failedImages,
             'success_rate' => $successRate,
-            'message' => "Bulk request #{$this->bulkRequest->id} completed with {$successRate}% success rate",
+            'message' => "Your BulkRequest #{$this->bulkRequest->id} ({$processedImages} thumbnails) are ready for download!",
             'completed_at' => $this->bulkRequest->completed_at,
         ];
     }
@@ -93,14 +93,13 @@ class BulkRequestCompletedNotification extends Notification implements ShouldQue
         $successRate = $totalImages > 0 ? round(($processedImages / $totalImages) * 100, 1) : 0;
 
         return [
-            'id' => $this->id,
             'type' => 'bulk_request_completed',
             'bulk_request_id' => $this->bulkRequest->id,
             'total_images' => $totalImages,
             'processed_images' => $processedImages,
             'failed_images' => $failedImages,
             'success_rate' => $successRate,
-            'message' => "Bulk request #{$this->bulkRequest->id} completed with {$successRate}% success rate",
+            'message' => "Your BulkRequest #{$this->bulkRequest->id} ({$processedImages} thumbnails) are ready for download!",
             'completed_at' => $this->bulkRequest->completed_at,
         ];
     }

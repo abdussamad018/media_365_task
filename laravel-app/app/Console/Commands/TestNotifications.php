@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
-use App\Notifications\ThumbnailReadyNotification;
 use App\Notifications\BulkRequestCompletedNotification;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Notification;
@@ -47,30 +46,30 @@ class TestNotifications extends Command
 
         $this->info("Testing notifications for user: {$user->name} ({$user->email})");
 
-        // Test thumbnail ready notification
-        $this->info("Sending thumbnail ready notification...");
-        $user->notify(new ThumbnailReadyNotification(
-            new \App\Models\ImageThumbnail([
-                'id' => 999,
-                'image_url' => 'https://example.com/test-image.jpg',
-                'status' => 'processed',
-                'thumbnail_path' => '/thumbnails/test-thumbnail.jpg',
-                'processed_at' => now(),
-                'bulk_request_id' => 999
-            ])
-        ));
+        // Create a test bulk request
+        $bulkRequest = \App\Models\BulkRequest::create([
+            'user_id' => $user->id,
+            'image_urls' => "https://example.com/test-image1.jpg\nhttps://example.com/test-image2.jpg",
+            'total_images' => 2,
+            'processed_images' => 1,
+            'failed_images' => 1,
+            'status' => 'completed',
+            'priority' => 1,
+            'completed_at' => now()
+        ]);
+
+        // Create a test image thumbnail
+        $imageThumbnail = \App\Models\ImageThumbnail::create([
+            'bulk_request_id' => $bulkRequest->id,
+            'image_url' => 'https://example.com/test-image.jpg',
+            'status' => 'processed',
+            'thumbnail_path' => '/thumbnails/test-thumbnail.jpg',
+            'processed_at' => now()
+        ]);
 
         // Test bulk request completed notification
         $this->info("Sending bulk request completed notification...");
-        $user->notify(new BulkRequestCompletedNotification(
-            new \App\Models\BulkRequest([
-                'id' => 999,
-                'total_images' => 5,
-                'processed_images' => 4,
-                'failed_images' => 1,
-                'completed_at' => now()
-            ])
-        ));
+        $user->notify(new BulkRequestCompletedNotification($bulkRequest));
 
         $this->info("✅ Test notifications sent successfully!");
         $this->info("Check the notifications table and user dashboard to see the results.");

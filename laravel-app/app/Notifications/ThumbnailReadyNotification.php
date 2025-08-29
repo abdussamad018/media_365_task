@@ -32,7 +32,7 @@ class ThumbnailReadyNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        return ['database'];
     }
 
     /**
@@ -61,6 +61,7 @@ class ThumbnailReadyNotification extends Notification implements ShouldQueue
     public function toDatabase(object $notifiable): array
     {
         return [
+            'type' => 'thumbnail_ready',
             'image_thumbnail_id' => $this->imageThumbnail->id,
             'bulk_request_id' => $this->bulkRequest->id,
             'image_url' => $this->imageThumbnail->image_url,
@@ -80,7 +81,6 @@ class ThumbnailReadyNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            'id' => $this->id,
             'type' => 'thumbnail_ready',
             'image_thumbnail_id' => $this->imageThumbnail->id,
             'bulk_request_id' => $this->bulkRequest->id,

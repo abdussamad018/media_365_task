@@ -29,8 +29,33 @@ class NotificationController extends Controller
         $notifications = $query->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
+        // Transform notifications to include proper data structure
+        $transformedNotifications = collect($notifications->items())->map(function ($notification) {
+            // Ensure the notification has the proper structure
+            $data = $notification->data ?? [];
+            
+            // Add type information if not present
+            if (!isset($data['type'])) {
+                $data['type'] = class_basename($notification->type);
+            }
+            
+            // Ensure message is present
+            if (!isset($data['message'])) {
+                $data['message'] = 'Notification received';
+            }
+            
+            return [
+                'id' => $notification->id,
+                'type' => $notification->type,
+                'data' => $data,
+                'read_at' => $notification->read_at,
+                'created_at' => $notification->created_at,
+                'updated_at' => $notification->updated_at,
+            ];
+        });
+        
         return response()->json([
-            'notifications' => $notifications->items(),
+            'notifications' => $transformedNotifications,
             'pagination' => [
                 'current_page' => $notifications->currentPage(),
                 'last_page' => $notifications->lastPage(),

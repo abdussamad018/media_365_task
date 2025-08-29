@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\ImageThumbnail;
-use App\Notifications\ThumbnailReadyNotification;
+use App\Models\BulkRequest;
 use App\Notifications\BulkRequestCompletedNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -74,9 +74,6 @@ class ProcessThumbnailJob implements ShouldQueue
                 ]);
             }
 
-            // Send notification to user about thumbnail completion
-            $this->sendThumbnailNotification();
-
             // Update bulk request counters
             $this->updateBulkRequestCounters();
 
@@ -91,9 +88,6 @@ class ProcessThumbnailJob implements ShouldQueue
                 'error_message' => $e->getMessage(),
                 'processed_at' => now(),
             ]);
-
-            // Send notification about failure
-            $this->sendThumbnailNotification();
 
             $this->updateBulkRequestCounters();
         }
@@ -166,21 +160,7 @@ class ProcessThumbnailJob implements ShouldQueue
         }
     }
 
-    /**
-     * Send notification about thumbnail completion
-     */
-    private function sendThumbnailNotification(): void
-    {
-        try {
-            $user = $this->imageThumbnail->bulkRequest->user;
-            $user->notify(new ThumbnailReadyNotification($this->imageThumbnail));
-        } catch (\Exception $e) {
-            Log::error('Failed to send thumbnail notification', [
-                'image_thumbnail_id' => $this->imageThumbnail->id,
-                'error' => $e->getMessage()
-            ]);
-        }
-    }
+
 
     /**
      * Send notification about bulk request completion

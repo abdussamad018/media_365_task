@@ -96,8 +96,12 @@ class ThumbnailController extends Controller
             return response()->json(['error' => 'Bulk request not found'], 404);
         }
 
+        $data = $bulkRequest->toArray();
+        $data['image_thumbnails'] = $bulkRequest->imageThumbnails;
+        unset($data['imageThumbnails']);
+
         return response()->json([
-            'bulk_request' => $bulkRequest,
+            'bulk_request' => $data,
             'image_thumbnails' => $bulkRequest->imageThumbnails
         ]);
     }
@@ -118,26 +122,7 @@ class ThumbnailController extends Controller
 
         $bulkRequests = $query->get();
 
-        // Debug logging
-        \Log::info('ThumbnailController::results - Debug Info', [
-            'user_id' => $user->id,
-            'bulk_requests_count' => $bulkRequests->count(),
-            'status_filter' => $status,
-            'bulk_requests_debug' => $bulkRequests->map(function($req) {
-                return [
-                    'id' => $req->id,
-                    'total_images' => $req->total_images,
-                    'imageThumbnails_count' => $req->imageThumbnails->count(),
-                    'imageThumbnails_sample' => $req->imageThumbnails->take(3)->map(function($thumb) {
-                        return [
-                            'id' => $thumb->id,
-                            'status' => $thumb->status,
-                            'image_url' => $thumb->image_url
-                        ];
-                    })
-                ];
-            })
-        ]);
+
 
         // Apply status filtering on the frontend instead of in the relationship
         if ($status && $status !== 'all') {
@@ -145,51 +130,27 @@ class ThumbnailController extends Controller
                 $filteredThumbnails = $bulkRequest->imageThumbnails->filter(function ($thumbnail) use ($status) {
                     return $thumbnail->status === $status;
                 });
-                
+
                 // Create a new collection with filtered thumbnails
                 $bulkRequest->setRelation('imageThumbnails', $filteredThumbnails);
-                
+
                 return $bulkRequest;
             });
         }
 
-        return response()->json(['bulk_requests' => $bulkRequests]);
+        // Transform the data to use image_thumbnails instead of imageThumbnails
+        $transformedBulkRequests = $bulkRequests->map(function ($bulkRequest) {
+            $data = $bulkRequest->toArray();
+            $data['image_thumbnails'] = $bulkRequest->imageThumbnails;
+            unset($data['imageThumbnails']);
+            return $data;
+        });
+
+        return response()->json(['bulk_requests' => $transformedBulkRequests]);
     }
 
-    /**
-     * Get all images overview for the authenticated user
-     */
-    public function allImages(Request $request)
-    {
-        $user = Auth::user();
-        $status = $request->get('status');
 
-        // Get all bulk request IDs for the user
-        $bulkRequestIds = $user->bulkRequests()->pluck('id');
 
-        // Get all image thumbnails for the user's bulk requests
-        $query = ImageThumbnail::whereIn('bulk_request_id', $bulkRequestIds)
-            ->with('bulkRequest:id,created_at');
-
-        // Apply status filter if provided
-        if ($status && $status !== 'all') {
-            $query->where('status', $status);
-        }
-
-        $imageThumbnails = $query->latest('created_at')->get();
-
-        return response()->json([
-            'image_thumbnails' => $imageThumbnails,
-            'total_count' => $imageThumbnails->count(),
-            'status_counts' => [
-                'all' => $user->bulkRequests()->withCount('imageThumbnails')->get()->sum('image_thumbnails_count'),
-                'pending' => $user->bulkRequests()->withCount(['imageThumbnails' => function($q) { $q->where('status', 'pending'); }])->get()->sum('image_thumbnails_count'),
-                'processing' => $user->bulkRequests()->withCount(['imageThumbnails' => function($q) { $q->where('status', 'processing'); }])->get()->sum('image_thumbnails_count'),
-                'processed' => $user->bulkRequests()->withCount(['imageThumbnails' => function($q) { $q->where('status', 'processed'); }])->get()->sum('image_thumbnails_count'),
-                'failed' => $user->bulkRequests()->withCount(['imageThumbnails' => function($q) { $q->where('status', 'failed'); }])->get()->sum('image_thumbnails_count'),
-            ]
-        ]);
-    }
 
     /**
      * Display the main page with form and results
@@ -211,14 +172,7 @@ class ThumbnailController extends Controller
     {
         $priority = $bulkRequest->priority;
 
-        // Log priority information
-        \Log::info('Dispatching thumbnail jobs', [
-            'bulk_request_id' => $bulkRequest->id,
-            'user_id' => $bulkRequest->user_id,
-            'priority' => $priority,
-            'total_images' => $bulkRequest->total_images,
-            'user_tier' => $bulkRequest->user->subscription_tier ?? 'unknown'
-        ]);
+
 
         foreach ($bulkRequest->imageThumbnails as $index => $imageThumbnail) {
             // Priority-based delay: higher priority users get faster processing
@@ -234,30 +188,24 @@ class ThumbnailController extends Controller
                 $job->priority($priority);
             }
 
-            // Log job dispatch
-            \Log::info('Job dispatched', [
-                'image_thumbnail_id' => $imageThumbnail->id,
-                'priority' => $priority,
-                'delay' => $priorityDelay,
-                'queue' => $this->getQueueNameByPriority($priority)
-            ]);
+
         }
     }
-    
+
     /**
      * Get queue status for priority-based processing
      */
     public function queueStatus()
     {
         $user = Auth::user();
-        
+
         $queues = ['enterprise', 'pro', 'free'];
         $queueStatus = [];
-        
+
         foreach ($queues as $queue) {
             $pendingJobs = DB::table('jobs')->where('queue', $queue)->count();
             $failedJobs = DB::table('failed_jobs')->where('queue', $queue)->count();
-            
+
             $queueStatus[$queue] = [
                 'pending' => $pendingJobs,
                 'failed' => $failedJobs,
@@ -265,7 +213,7 @@ class ThumbnailController extends Controller
                 'priority' => $this->getQueuePriority($queue)
             ];
         }
-        
+
         return response()->json([
             'queues' => $queueStatus,
             'user_priority' => $user->getPriorityMultiplier(),
@@ -274,7 +222,7 @@ class ThumbnailController extends Controller
             'total_failed' => DB::table('failed_jobs')->count()
         ]);
     }
-    
+
     /**
      * Get priority level for queue
      */
@@ -287,7 +235,7 @@ class ThumbnailController extends Controller
             default => 1
         };
     }
-    
+
     /**
      * Get queue name based on priority level
      */

@@ -23,7 +23,7 @@ export default function Dashboard({auth, flash}) {
     const [imageUrls, setImageUrls] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
-    const [statusFilter, setStatusFilter] = useState('all');
+    const [statusFilters, setStatusFilters] = useState({});
     const [toastMessage, setToastMessage] = useState('');
     const [toastError, setToastError] = useState(false);
     const [errors, setErrors] = useState({});
@@ -40,10 +40,11 @@ export default function Dashboard({auth, flash}) {
     ];
 
     const filteredBulkRequests = bulkRequests.map(request => {
-        const filteredThumbnails = statusFilter === 'all'
+        const requestStatusFilter = statusFilters[request.id] || 'all';
+        const filteredThumbnails = requestStatusFilter === 'all'
             ? (request.image_thumbnails || [])
             : (request.image_thumbnails || []).filter(
-                thumbnail => thumbnail.status === statusFilter
+                thumbnail => thumbnail.status === requestStatusFilter
             );
 
         return {
@@ -116,7 +117,6 @@ export default function Dashboard({auth, flash}) {
     };
 
 
-
     const refreshResults = async () => {
         setIsRefreshing(true);
         try {
@@ -148,6 +148,13 @@ export default function Dashboard({auth, flash}) {
         const total = request.total_images;
         const processed = request.processed_images + request.failed_images;
         return total > 0 ? Math.round((processed / total) * 100) : 0;
+    };
+
+    const handleStatusFilterChange = (requestId, newStatus) => {
+        setStatusFilters(prev => ({
+            ...prev,
+            [requestId]: newStatus
+        }));
     };
 
     const showToast = (message, isError = false) => {
@@ -197,7 +204,6 @@ export default function Dashboard({auth, flash}) {
             showToast(flash.error, true);
         }
     }, [flash]);
-
 
 
     const getSubscriptionIcon = (tier) => {
@@ -254,7 +260,10 @@ export default function Dashboard({auth, flash}) {
                     },
                     {
                         content: <NotificationBell/>,
-
+                        style: {
+                            borderRadius: '12px',
+                            fontWeight: '500'
+                        }
                     }
 
                 ]}
@@ -456,238 +465,260 @@ export default function Dashboard({auth, flash}) {
                             </div>
 
 
-
                             {filteredBulkRequests.map(bulkRequest => {
                                 return (
-                                <div key={bulkRequest.id} style={{
-                                    marginBottom: '20px',
-                                    border: '1px solid #e2e8f0',
-                                    borderRadius: '16px',
-                                    overflow: 'hidden',
-                                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                                }}>
-                                    <Card>
-                                        <div style={{
-                                            padding: '24px',
-                                            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
-                                        }}>
+                                    <div key={bulkRequest.id} style={{
+                                        marginBottom: '20px',
+                                        border: '1px solid #e2e8f0',
+                                        borderRadius: '16px',
+                                        overflow: 'hidden',
+                                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                                    }}>
+                                        <Card>
                                             <div style={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                marginBottom: '20px'
+                                                padding: '24px',
+                                                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
                                             }}>
-                                                <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
-                                                    <Text variant="headingMd" as="h3" style={{
-                                                        color: '#1e293b',
-                                                        fontWeight: '600'
-                                                    }}>
-                                                        Request #{bulkRequest.id}
-                                                    </Text>
-                                                    <Badge status={getStatusBadgeStatus(bulkRequest.status)} style={{
-                                                        fontSize: '11px',
-                                                        padding: '6px 12px',
-                                                        borderRadius: '20px',
-                                                        fontWeight: '600'
-                                                    }}>
-                                                        {bulkRequest.status.toUpperCase()}
-                                                    </Badge>
-                                                </div>
-
-                                                <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
-                                                    <Badge
-                                                        status={bulkRequest.priority === 3 ? 'success' : bulkRequest.priority === 2 ? 'attention' : 'info'}
-                                                        style={{
-                                                            fontSize: '11px',
-                                                            padding: '6px 12px',
-                                                            borderRadius: '20px',
+                                                <div style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    marginBottom: '20px'
+                                                }}>
+                                                    <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+                                                        <Text variant="headingMd" as="h3" style={{
+                                                            color: '#1e293b',
                                                             fontWeight: '600'
                                                         }}>
-                                                        {bulkRequest.priority === 3 ? '🚀' : bulkRequest.priority === 2 ? '⚡' : '🎯'} Priority: {bulkRequest.priority}x
-                                                    </Badge>
-                                                    <Text variant="bodyMd" color="subdued" style={{fontSize: '13px'}}>
-                                                        {new Date(bulkRequest.created_at).toLocaleDateString()}
-                                                    </Text>
-                                                </div>
-                                            </div>
-
-                                            <div style={{
-                                                display: 'grid',
-                                                gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-                                                gap: '16px',
-                                                marginBottom: '20px'
-                                            }}>
-                                                <div style={{
-                                                    textAlign: 'center',
-                                                    padding: '16px',
-                                                    background: 'rgba(102, 126, 234, 0.1)',
-                                                    borderRadius: '12px',
-                                                    border: '1px solid rgba(102, 126, 234, 0.2)'
-                                                }}>
-                                                    <Text variant="headingLg" as="h3" style={{
-                                                        color: '#667eea',
-                                                        fontWeight: '700',
-                                                        marginBottom: '4px'
-                                                    }}>
-                                                        {bulkRequest.total_images}
-                                                    </Text>
-                                                    <Text variant="bodyMd" as="p" style={{
-                                                        color: '#64748b',
-                                                        fontSize: '12px',
-                                                        fontWeight: '500'
-                                                    }}>
-                                                        Total Images
-                                                    </Text>
-                                                </div>
-                                                <div style={{
-                                                    textAlign: 'center',
-                                                    padding: '16px',
-                                                    background: 'rgba(16, 185, 129, 0.1)',
-                                                    borderRadius: '12px',
-                                                    border: '1px solid rgba(16, 185, 129, 0.2)'
-                                                }}>
-                                                    <Text variant="headingLg" as="h3" style={{
-                                                        color: '#10b981',
-                                                        fontWeight: '700',
-                                                        marginBottom: '4px'
-                                                    }}>
-                                                        {bulkRequest.processed_images}
-                                                    </Text>
-                                                    <Text variant="bodyMd" as="p" style={{
-                                                        color: '#64748b',
-                                                        fontSize: '12px',
-                                                        fontWeight: '500'
-                                                    }}>
-                                                        Processed
-                                                    </Text>
-                                                </div>
-                                                <div style={{
-                                                    textAlign: 'center',
-                                                    padding: '16px',
-                                                    background: 'rgba(239, 68, 68, 0.1)',
-                                                    borderRadius: '12px',
-                                                    border: '1px solid rgba(239, 68, 68, 0.2)'
-                                                }}>
-                                                    <Text variant="headingLg" as="h3" style={{
-                                                        color: '#ef4444',
-                                                        fontWeight: '700',
-                                                        marginBottom: '4px'
-                                                    }}>
-                                                        {bulkRequest.failed_images}
-                                                    </Text>
-                                                    <Text variant="bodyMd" as="p" style={{
-                                                        color: '#64748b',
-                                                        fontSize: '12px',
-                                                        fontWeight: '500'
-                                                    }}>
-                                                        Failed
-                                                    </Text>
-                                                </div>
-                                                <div style={{
-                                                    textAlign: 'center',
-                                                    padding: '16px',
-                                                    background: 'rgba(59, 130, 246, 0.1)',
-                                                    borderRadius: '12px',
-                                                    border: '1px solid rgba(59, 130, 246, 0.2)'
-                                                }}>
-                                                    <Text variant="headingLg" as="h3" style={{
-                                                        color: '#3b82f6',
-                                                        fontWeight: '700',
-                                                        marginBottom: '4px'
-                                                    }}>
-                                                        {getProgressPercentage(bulkRequest)}%
-                                                    </Text>
-                                                    <Text variant="bodyMd" as="p" style={{
-                                                        color: '#64748b',
-                                                        fontSize: '12px',
-                                                        fontWeight: '500'
-                                                    }}>
-                                                        Complete
-                                                    </Text>
-                                                </div>
-                                            </div>
-
-                                            <div style={{marginBottom: '20px'}}>
-                                                <div style={{
-                                                    display: 'flex',
-                                                    justifyContent: 'space-between',
-                                                    alignItems: 'center',
-                                                    marginBottom: '8px'
-                                                }}>
-                                                    <Text variant="bodyMd" as="span" style={{
-                                                        color: '#64748b',
-                                                        fontWeight: '500',
-                                                        fontSize: '13px'
-                                                    }}>
-                                                        Progress
-                                                    </Text>
-                                                    <Text variant="bodyMd" as="span" style={{
-                                                        color: '#64748b',
-                                                        fontWeight: '600',
-                                                        fontSize: '13px'
-                                                    }}>
-                                                        {getProgressPercentage(bulkRequest)}%
-                                                    </Text>
-                                                </div>
-                                                <ProgressBar
-                                                    progress={getProgressPercentage(bulkRequest)}
-                                                    size="large"
-                                                    color={getProgressPercentage(bulkRequest) === 100 ? 'success' : 'primary'}
-                                                />
-                                            </div>
-
-                                            {/* Image Details Section */}
-                                            <div style={{marginTop: '24px'}}>
-                                                                                                    {/* Table Header with Filtering */}
-                                                <div style={{
-                                                    display: 'flex',
-                                                    justifyContent: 'space-between',
-                                                    alignItems: 'center',
-                                                    padding: '16px',
-                                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                                    borderRadius: '8px 8px 0 0',
-                                                    border: '1px solid #e2e8f0',
-                                                    borderBottom: 'none'
-                                                }}>
-                                                    <div style={{
-                                                        display: 'grid',
-                                                        gridTemplateColumns: '1fr auto auto',
-                                                        gap: '12px',
-                                                        flex: 1
-                                                    }}>
-                                                        <div style={{fontWeight: '600', fontSize: '13px', color: 'white'}}>🖼️ Image URL</div>
-                                                        <div style={{textAlign: 'center', fontWeight: '600', fontSize: '13px', color: 'white'}}>📊 Status</div>
-                                                        <div style={{textAlign: 'center', fontWeight: '600', fontSize: '13px', color: 'white'}}>⏰ Timestamp</div>
+                                                            Request #{bulkRequest.id}
+                                                        </Text>
+                                                        <Badge status={getStatusBadgeStatus(bulkRequest.status)}
+                                                               style={{
+                                                                   fontSize: '11px',
+                                                                   padding: '6px 12px',
+                                                                   borderRadius: '20px',
+                                                                   fontWeight: '600'
+                                                               }}>
+                                                            {bulkRequest.status.toUpperCase()}
+                                                        </Badge>
                                                     </div>
 
-                                                    {/* Filtering Section */}
+                                                    <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+                                                        <Badge
+                                                            status={bulkRequest.priority === 3 ? 'success' : bulkRequest.priority === 2 ? 'attention' : 'info'}
+                                                            style={{
+                                                                fontSize: '11px',
+                                                                padding: '6px 12px',
+                                                                borderRadius: '20px',
+                                                                fontWeight: '600'
+                                                            }}>
+                                                            {bulkRequest.priority === 3 ? '🚀' : bulkRequest.priority === 2 ? '⚡' : '🎯'} Priority: {bulkRequest.priority}x
+                                                        </Badge>
+                                                        <Text variant="bodyMd" color="subdued"
+                                                              style={{fontSize: '13px'}}>
+                                                            {new Date(bulkRequest.created_at).toLocaleDateString()}
+                                                        </Text>
+                                                    </div>
+                                                </div>
+
+                                                <div style={{
+                                                    display: 'grid',
+                                                    gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+                                                    gap: '16px',
+                                                    marginBottom: '20px'
+                                                }}>
+                                                    <div style={{
+                                                        textAlign: 'center',
+                                                        padding: '16px',
+                                                        background: 'rgba(102, 126, 234, 0.1)',
+                                                        borderRadius: '12px',
+                                                        border: '1px solid rgba(102, 126, 234, 0.2)'
+                                                    }}>
+                                                        <Text variant="headingLg" as="h3" style={{
+                                                            color: '#667eea',
+                                                            fontWeight: '700',
+                                                            marginBottom: '4px'
+                                                        }}>
+                                                            {bulkRequest.total_images}
+                                                        </Text>
+                                                        <Text variant="bodyMd" as="p" style={{
+                                                            color: '#64748b',
+                                                            fontSize: '12px',
+                                                            fontWeight: '500'
+                                                        }}>
+                                                            Total Images
+                                                        </Text>
+                                                    </div>
+                                                    <div style={{
+                                                        textAlign: 'center',
+                                                        padding: '16px',
+                                                        background: 'rgba(16, 185, 129, 0.1)',
+                                                        borderRadius: '12px',
+                                                        border: '1px solid rgba(16, 185, 129, 0.2)'
+                                                    }}>
+                                                        <Text variant="headingLg" as="h3" style={{
+                                                            color: '#10b981',
+                                                            fontWeight: '700',
+                                                            marginBottom: '4px'
+                                                        }}>
+                                                            {bulkRequest.processed_images}
+                                                        </Text>
+                                                        <Text variant="bodyMd" as="p" style={{
+                                                            color: '#64748b',
+                                                            fontSize: '12px',
+                                                            fontWeight: '500'
+                                                        }}>
+                                                            Processed
+                                                        </Text>
+                                                    </div>
+                                                    <div style={{
+                                                        textAlign: 'center',
+                                                        padding: '16px',
+                                                        background: 'rgba(239, 68, 68, 0.1)',
+                                                        borderRadius: '12px',
+                                                        border: '1px solid rgba(239, 68, 68, 0.2)'
+                                                    }}>
+                                                        <Text variant="headingLg" as="h3" style={{
+                                                            color: '#ef4444',
+                                                            fontWeight: '700',
+                                                            marginBottom: '4px'
+                                                        }}>
+                                                            {bulkRequest.failed_images}
+                                                        </Text>
+                                                        <Text variant="bodyMd" as="p" style={{
+                                                            color: '#64748b',
+                                                            fontSize: '12px',
+                                                            fontWeight: '500'
+                                                        }}>
+                                                            Failed
+                                                        </Text>
+                                                    </div>
+                                                    <div style={{
+                                                        textAlign: 'center',
+                                                        padding: '16px',
+                                                        background: 'rgba(59, 130, 246, 0.1)',
+                                                        borderRadius: '12px',
+                                                        border: '1px solid rgba(59, 130, 246, 0.2)'
+                                                    }}>
+                                                        <Text variant="headingLg" as="h3" style={{
+                                                            color: '#3b82f6',
+                                                            fontWeight: '700',
+                                                            marginBottom: '4px'
+                                                        }}>
+                                                            {getProgressPercentage(bulkRequest)}%
+                                                        </Text>
+                                                        <Text variant="bodyMd" as="p" style={{
+                                                            color: '#64748b',
+                                                            fontSize: '12px',
+                                                            fontWeight: '500'
+                                                        }}>
+                                                            Complete
+                                                        </Text>
+                                                    </div>
+                                                </div>
+
+                                                <div style={{marginBottom: '20px'}}>
                                                     <div style={{
                                                         display: 'flex',
+                                                        justifyContent: 'space-between',
                                                         alignItems: 'center',
-                                                        gap: '12px',
-                                                        marginLeft: '20px'
+                                                        marginBottom: '8px'
                                                     }}>
-                                                        <Select
-                                                            label=""
-                                                            labelInline
-                                                            options={[
-                                                                {label: 'All Statuses', value: 'all'},
-                                                                {label: 'Pending', value: 'pending'},
-                                                                {label: 'Processing', value: 'processing'},
-                                                                {label: 'Processed', value: 'processed'},
-                                                                {label: 'Failed', value: 'failed'}
-                                                            ]}
-                                                            value={statusFilter}
-                                                            onChange={setStatusFilter}
-                                                            style={{
-                                                                minWidth: '140px',
-                                                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                                                border: '1px solid rgba(255, 255, 255, 0.2)',
-                                                                borderRadius: '6px'
-                                                            }}
-                                                        />
+                                                        <Text variant="bodyMd" as="span" style={{
+                                                            color: '#64748b',
+                                                            fontWeight: '500',
+                                                            fontSize: '13px'
+                                                        }}>
+                                                            Progress
+                                                        </Text>
+                                                        <Text variant="bodyMd" as="span" style={{
+                                                            color: '#64748b',
+                                                            fontWeight: '600',
+                                                            fontSize: '13px'
+                                                        }}>
+                                                            {getProgressPercentage(bulkRequest)}%
+                                                        </Text>
                                                     </div>
+                                                    <ProgressBar
+                                                        progress={getProgressPercentage(bulkRequest)}
+                                                        size="large"
+                                                        color={getProgressPercentage(bulkRequest) === 100 ? 'success' : 'primary'}
+                                                    />
                                                 </div>
+
+                                                {/* Filtering Section */}
+                                                <div style={{
+                                                    display: 'flex',
+                                                    alignItems: 'flex-end',
+                                                    gap: '12px',
+                                                    marginLeft: '20px'
+                                                }}>
+                                                    <Select
+                                                        label=""
+                                                        labelInline
+                                                        options={[
+                                                            {label: 'All Statuses', value: 'all'},
+                                                            {label: 'Pending', value: 'pending'},
+                                                            {label: 'Processing', value: 'processing'},
+                                                            {label: 'Processed', value: 'processed'},
+                                                            {label: 'Failed', value: 'failed'}
+                                                        ]}
+                                                        value={statusFilters[bulkRequest.id] || 'all'}
+                                                        onChange={(value) => handleStatusFilterChange(bulkRequest.id, value)}
+                                                        style={{
+                                                            minWidth: '140px',
+                                                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                                                            borderRadius: '6px'
+                                                        }}
+                                                    />
+                                                </div>
+
+                                                {/* Image Details Section */}
+                                                <div style={{marginTop: '24px'}}>
+
+
+                                                    {/* Table Header with Filtering */}
+                                                    <div style={{
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center',
+                                                        padding: '16px',
+                                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                                        borderRadius: '8px 8px 0 0',
+                                                        border: '1px solid #e2e8f0',
+                                                        borderBottom: 'none'
+                                                    }}>
+
+                                                        <div style={{
+                                                            display: 'grid',
+                                                            gridTemplateColumns: '1fr auto auto',
+                                                            gap: '12px',
+                                                            flex: 1
+                                                        }}>
+                                                            <div style={{
+                                                                fontWeight: '600',
+                                                                fontSize: '13px',
+                                                                color: 'white'
+                                                            }}>🖼️ Image URL
+                                                            </div>
+                                                            <div style={{
+                                                                textAlign: 'center',
+                                                                fontWeight: '600',
+                                                                fontSize: '13px',
+                                                                color: 'white'
+                                                            }}>📊 Status
+                                                            </div>
+                                                            <div style={{
+                                                                textAlign: 'center',
+                                                                fontWeight: '600',
+                                                                fontSize: '13px',
+                                                                color: 'white'
+                                                            }}>⏰ Timestamp
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
 
                                                     <div style={{
                                                         display: 'grid',
@@ -699,93 +730,94 @@ export default function Dashboard({auth, flash}) {
                                                         {Array.isArray(bulkRequest.image_thumbnails) && bulkRequest.image_thumbnails.length > 0 ? (
                                                             bulkRequest.image_thumbnails.map((thumbnail, index) => (
                                                                 <div key={thumbnail.id} style={{
-                                                                display: 'grid',
-                                                                gridTemplateColumns: '1fr auto auto',
-                                                                gap: '12px',
-                                                                padding: '16px',
-                                                                backgroundColor: index % 2 === 0 ? '#ffffff' : '#f8fafc',
-                                                                borderBottom: index < bulkRequest.image_thumbnails.length - 1 ? '1px solid #e2e8f0' : 'none',
-                                                                alignItems: 'center',
-                                                                transition: 'all 0.2s ease',
-                                                                cursor: 'pointer',
-                                                                ':hover': {
-                                                                    backgroundColor: '#f1f5f9',
-                                                                    transform: 'translateY(-1px)',
-                                                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-                                                                }
-                                                            }}
-                                                            onMouseEnter={(e) => {
-                                                                e.currentTarget.style.backgroundColor = '#f1f5f9';
-                                                                e.currentTarget.style.transform = 'translateY(-1px)';
-                                                                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-                                                            }}
-                                                            onMouseLeave={(e) => {
-                                                                e.currentTarget.style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#f8fafc';
-                                                                e.currentTarget.style.transform = 'translateY(0)';
-                                                                e.currentTarget.style.boxShadow = 'none';
-                                                            }}>
-                                                                <div style={{
-                                                                    wordBreak: 'break-all',
-                                                                    fontFamily: 'monospace',
-                                                                    fontSize: '13px',
-                                                                    color: '#374151',
-                                                                    lineHeight: '1.4'
-                                                                }}>
-                                                                    <a
-                                                                        href={thumbnail.image_url}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        style={{
-                                                                            color: '#667eea',
-                                                                            textDecoration: 'none',
-                                                                            fontWeight: '500'
-                                                                        }}
-                                                                        title={thumbnail.image_url}
-                                                                    >
-                                                                        {thumbnail.image_url.length > 60
-                                                                            ? thumbnail.image_url.substring(0, 60) + '...'
-                                                                            : thumbnail.image_url
-                                                                        }
-                                                                    </a>
-                                                                </div>
-                                                                <div style={{textAlign: 'center'}}>
-                                                                    <Badge
-                                                                        status={getStatusBadgeStatus(thumbnail.status)}
-                                                                        style={{
-                                                                            fontSize: '11px',
-                                                                            padding: '6px 12px',
-                                                                            borderRadius: '16px',
-                                                                            fontWeight: '600',
-                                                                            minWidth: '80px'
+                                                                    display: 'grid',
+                                                                    gridTemplateColumns: '1fr auto auto',
+                                                                    gap: '12px',
+                                                                    padding: '16px',
+                                                                    backgroundColor: index % 2 === 0 ? '#ffffff' : '#f8fafc',
+                                                                    borderBottom: index < bulkRequest.image_thumbnails.length - 1 ? '1px solid #e2e8f0' : 'none',
+                                                                    alignItems: 'center',
+                                                                    transition: 'all 0.2s ease',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                                     onMouseEnter={(e) => {
+                                                                         e.currentTarget.style.backgroundColor = '#f1f5f9';
+                                                                         e.currentTarget.style.transform = 'translateY(-1px)';
+                                                                         e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                                                                     }}
+                                                                     onMouseLeave={(e) => {
+                                                                         e.currentTarget.style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#f8fafc';
+                                                                         e.currentTarget.style.transform = 'translateY(0)';
+                                                                         e.currentTarget.style.boxShadow = 'none';
+                                                                     }}>
+                                                                    <div style={{
+                                                                        wordBreak: 'break-all',
+                                                                        fontFamily: 'monospace',
+                                                                        fontSize: '13px',
+                                                                        color: '#374151',
+                                                                        lineHeight: '1.4'
+                                                                    }}>
+                                                                        <a
+                                                                            href={thumbnail.image_url}
+                                                                            target="_blank"
+                                                                            rel="noopener noreferrer"
+                                                                            style={{
+                                                                                color: '#667eea',
+                                                                                textDecoration: 'none',
+                                                                                fontWeight: '500'
+                                                                            }}
+                                                                            title={thumbnail.image_url}
+                                                                        >
+                                                                            {thumbnail.image_url.length > 60
+                                                                                ? thumbnail.image_url.substring(0, 60) + '...'
+                                                                                : thumbnail.image_url
+                                                                            }
+                                                                        </a>
+                                                                    </div>
+                                                                    <div style={{textAlign: 'center'}}>
+                                                                        <Badge
+                                                                            status={getStatusBadgeStatus(thumbnail.status)}
+                                                                            style={{
+                                                                                fontSize: '11px',
+                                                                                padding: '6px 12px',
+                                                                                borderRadius: '16px',
+                                                                                fontWeight: '600',
+                                                                                minWidth: '80px'
+                                                                            }}>
+                                                                            {thumbnail.status === 'processed' ? '✅ Processed' :
+                                                                                thumbnail.status === 'pending' ? '⏳ Pending' :
+                                                                                    thumbnail.status === 'processing' ? '🔄 Processing' :
+                                                                                        thumbnail.status === 'failed' ? '❌ Failed' :
+                                                                                            thumbnail.status.toUpperCase()}
+                                                                        </Badge>
+                                                                    </div>
+                                                                    <div style={{
+                                                                        textAlign: 'center',
+                                                                        fontSize: '12px',
+                                                                        color: '#6b7280',
+                                                                        fontFamily: 'monospace',
+                                                                        minWidth: '140px'
+                                                                    }}>
+                                                                        <div style={{
+                                                                            fontWeight: '500',
+                                                                            marginBottom: '2px'
                                                                         }}>
-                                                                        {thumbnail.status === 'processed' ? '✅ Processed' :
-                                                                            thumbnail.status === 'pending' ? '⏳ Pending' :
-                                                                            thumbnail.status === 'processing' ? '🔄 Processing' :
-                                                                            thumbnail.status === 'failed' ? '❌ Failed' :
-                                                                            thumbnail.status.toUpperCase()}
-                                                                    </Badge>
-                                                                </div>
-                                                                <div style={{
-                                                                    textAlign: 'center',
-                                                                    fontSize: '12px',
-                                                                    color: '#6b7280',
-                                                                    fontFamily: 'monospace',
-                                                                    minWidth: '140px'
-                                                                }}>
-                                                                    <div style={{fontWeight: '500', marginBottom: '2px'}}>
-                                                                        {thumbnail.created_at ?
-                                                                            new Date(thumbnail.created_at).toLocaleDateString() :
-                                                                            new Date(bulkRequest.created_at).toLocaleDateString()
-                                                                        }
-                                                                    </div>
-                                                                    <div style={{fontSize: '11px', color: '#9ca3af'}}>
-                                                                        {thumbnail.created_at ?
-                                                                            new Date(thumbnail.created_at).toLocaleTimeString() :
-                                                                            new Date(bulkRequest.created_at).toLocaleTimeString()
-                                                                        }
+                                                                            {thumbnail.created_at ?
+                                                                                new Date(thumbnail.created_at).toLocaleDateString() :
+                                                                                new Date(bulkRequest.created_at).toLocaleDateString()
+                                                                            }
+                                                                        </div>
+                                                                        <div style={{
+                                                                            fontSize: '11px',
+                                                                            color: '#9ca3af'
+                                                                        }}>
+                                                                            {thumbnail.created_at ?
+                                                                                new Date(thumbnail.created_at).toLocaleTimeString() :
+                                                                                new Date(bulkRequest.created_at).toLocaleTimeString()
+                                                                            }
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
                                                             ))
                                                         ) : (
                                                             <div style={{
@@ -795,7 +827,7 @@ export default function Dashboard({auth, flash}) {
                                                                 fontSize: '13px'
                                                             }}>
                                                                 {bulkRequest.image_thumbnails && bulkRequest.image_thumbnails.length > 0
-                                                                    ? `No images found with status: ${statusFilter}`
+                                                                    ? `No images found with status: ${statusFilters[bulkRequest.id] || 'all'}`
                                                                     : 'No images found for this request'
                                                                 }
                                                             </div>
@@ -803,13 +835,21 @@ export default function Dashboard({auth, flash}) {
                                                     </div>
                                                 </div>
 
-                                        </div>
-                                    </Card>
-                                </div>
-                            );
+                                            </div>
+                                        </Card>
+                                    </div>
+                                );
                             })}
 
-                            {filteredBulkRequests.length === 0 && bulkRequests.length > 0 && (
+                            {bulkRequests.length > 0 && bulkRequests.every(request => {
+                                const requestStatusFilter = statusFilters[request.id] || 'all';
+                                const filteredThumbnails = requestStatusFilter === 'all'
+                                    ? (request.image_thumbnails || [])
+                                    : (request.image_thumbnails || []).filter(
+                                        thumbnail => thumbnail.status === requestStatusFilter
+                                    );
+                                return filteredThumbnails.length === 0;
+                            }) && (
                                 <Card style={{
                                     padding: '40px',
                                     textAlign: 'center',
@@ -908,7 +948,9 @@ export default function Dashboard({auth, flash}) {
                         duration={5000}
                     />
                 )}
+                <NotificationSettings/>
             </Page>
         </Frame>
+
     );
 }

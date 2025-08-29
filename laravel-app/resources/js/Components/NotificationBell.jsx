@@ -129,15 +129,36 @@ export default function NotificationBell() {
     };
 
     const getNotificationIcon = (type) => {
-        switch (type) {
-            case 'thumbnail_ready':
-                return '🖼️';
+        // Handle both notification type formats
+        const normalizedType = type?.toLowerCase().replace(/[^a-z]/g, '_');
+        
+        switch (normalizedType) {
+            case 'bulkrequestcompletednotification':
             case 'bulk_request_completed':
                 return '📦';
             default:
                 return '🔔';
         }
     };
+
+    const getNotificationTitle = (notification) => {
+        const type = notification.data?.type || notification.type;
+        const normalizedType = type?.toLowerCase().replace(/[^a-z]/g, '_');
+        
+        switch (normalizedType) {
+            case 'bulkrequestcompletednotification':
+            case 'bulk_request_completed':
+                return 'Bulk Request Completed';
+            default:
+                return 'Notification';
+        }
+    };
+
+    const getNotificationMessage = (notification) => {
+        return notification.data?.message || notification.message || 'Notification message';
+    };
+
+
 
     const getNotificationColor = (readAt) => {
         return readAt ? 'subdued' : 'success';
@@ -269,17 +290,7 @@ export default function NotificationBell() {
                                     color: notification.read_at ? '#6d7175' : '#202223',
                                     marginBottom: '8px',
                                     lineHeight: '1.4'
-                                }}> {notification.data?.message || 'Notification message'} </Text> {notification.data?.image_url && (
-                                <Text variant="bodySm" as="p" style={{
-                                    color: '#6d7175',
-                                    fontFamily: 'monospace',
-                                    fontSize: '11px',
-                                    wordBreak: 'break-all',
-                                    backgroundColor: '#f6f6f7',
-                                    padding: '4px 8px',
-                                    borderRadius: '4px',
-                                    marginBottom: '8px'
-                                }}> {notification.data.image_url} </Text>)} <Text variant="bodySm" as="span" style={{
+                                }}> {getNotificationMessage(notification)} </Text> <Text variant="bodySm" as="span" style={{
                                 color: '#6d7175',
                                 fontSize: '11px'
                             }}> {formatTime(notification.created_at)} </Text></div>

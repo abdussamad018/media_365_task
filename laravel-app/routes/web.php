@@ -42,81 +42,23 @@ Route::get('/', function () {
     return redirect()->route('auth.login');
 });
 
-// Test route to check authentication state
-Route::get('/auth-status', function () {
-    return response()->json([
-        'authenticated' => auth()->check(),
-        'user' => auth()->user(),
-        'session_id' => session()->getId(),
-        'intended_url' => session()->get('url.intended'),
-    ]);
-});
+
 
 // Protected Routes - Serve Inertia.js app
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
-        // Debug: Log dashboard access
-        \Log::info('Dashboard accessed', [
-            'user_id' => auth()->id(),
-            'user_email' => auth()->user()->email ?? 'unknown',
-            'session_id' => session()->getId(),
-        ]);
-        
         return Inertia::render('Dashboard');
     })->name('dashboard');
     
-    // Debug route to test authentication
-    Route::get('/debug-auth', function () {
-        return response()->json([
-            'authenticated' => auth()->check(),
-            'user' => auth()->user(),
-            'session_id' => session()->getId(),
-        ]);
-    });
-    
-    // Simple test route without Inertia
-    Route::get('/test-dashboard', function () {
-        return response()->json([
-            'message' => 'Dashboard test route accessed successfully',
-            'user' => auth()->user(),
-            'timestamp' => now()
-        ]);
-    });
+
     
     // API endpoints for Inertia.js
     Route::post('/thumbnails', [ThumbnailController::class, 'store'])->name('thumbnails.store');
     Route::get('/thumbnails/{bulkRequest}/status', [ThumbnailController::class, 'status'])->name('thumbnails.status');
     Route::get('/thumbnails/results', [ThumbnailController::class, 'results'])->name('thumbnails.results');
-    Route::get('/thumbnails/all-images', [ThumbnailController::class, 'allImages'])->name('thumbnails.all-images');
+
     
-    // Debug route for testing
-    Route::get('/debug/thumbnails', function() {
-        $user = auth()->user();
-        if (!$user) return response()->json(['error' => 'Not authenticated']);
-        
-        $bulkRequests = $user->bulkRequests()->with('imageThumbnails')->get();
-        return response()->json([
-            'user_id' => $user->id,
-            'bulk_requests_count' => $bulkRequests->count(),
-            'bulk_requests' => $bulkRequests->map(function($req) {
-                return [
-                    'id' => $req->id,
-                    'total_images' => $req->total_images,
-                    'processed_images' => $req->processed_images,
-                    'failed_images' => $req->failed_images,
-                    'image_thumbnails_count' => $req->imageThumbnails->count(),
-                    'image_thumbnails' => $req->imageThumbnails->take(3)->map(function($thumb) {
-                        return [
-                            'id' => $thumb->id,
-                            'image_url' => $thumb->image_url,
-                            'status' => $thumb->status,
-                            'created_at' => $thumb->created_at
-                        ];
-                    })
-                ];
-            })
-        ]);
-    });
+
     
 
     
