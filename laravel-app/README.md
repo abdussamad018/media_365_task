@@ -1,24 +1,26 @@
-# 🚀 Bulk Thumbnail Processor
+# 🚀 Bulk Thumbnail Processor - Senior Backend Engineer Task
 
-A modern, responsive web application built with Laravel, Inertia.js, and React for bulk image thumbnail processing with enterprise-grade features.
+A modern, enterprise-grade web application built with Laravel, Inertia.js, and React for bulk image thumbnail processing with intelligent queue prioritization and real-time status updates.
 
-## ✨ Features
+## ✨ Core Features
 
 - **🔐 Authentication System**: Secure login/register with user management
-- **🖼️ Bulk Image Processing**: Process multiple images simultaneously
-- **📊 Subscription Tiers**: Free, Pro, and Enterprise plans with different quotas
+- **🖼️ Bulk Image Processing**: Process multiple images simultaneously with background jobs
+- **📊 Subscription Tiers**: Free (50), Pro (100), Enterprise (200) images per request
+- **⚡ Priority Queue System**: Enterprise (3x), Pro (2x), Free (1x) priority processing
 - **🎨 Modern UI/UX**: Beautiful, responsive design using Shopify Polaris components
 - **📱 Mobile-First**: Fully responsive design for all devices
-- **⚡ High Performance**: Optimized for enterprise-grade processing
+- **🔄 Real-time Updates**: Automatic status updates with polling mechanism
 - **🔒 Secure**: Built-in security features and data protection
 
 ## 🛠️ Tech Stack
 
 ### Backend
 - **Laravel 11** - PHP framework for robust backend development
-- **MySQL/PostgreSQL** - Database management
-- **Laravel Sanctum** - API authentication
-- **Laravel Queue** - Background job processing
+- **MySQL/PostgreSQL** - Database management with migrations
+- **Laravel Queue** - Background job processing with priority-based queues
+- **Laravel Sanctum** - API authentication and session management
+- **Laravel Notifications** - User notification system
 
 ### Frontend
 - **React 18** - Modern JavaScript library for UI
@@ -26,10 +28,11 @@ A modern, responsive web application built with Laravel, Inertia.js, and React f
 - **Shopify Polaris** - Professional UI component library
 - **Vite** - Fast build tool and development server
 
-### Styling & Responsiveness
-- **CSS-in-JS** - Component-scoped styling
-- **Media Queries** - Mobile-first responsive design
-- **Flexbox/Grid** - Modern CSS layout systems
+### Queue System
+- **Priority Queues**: Separate queues for each subscription tier
+- **Job Prioritization**: Automatic priority assignment based on user tier
+- **Background Processing**: Asynchronous image processing simulation
+- **Error Handling**: Comprehensive error handling with retry mechanisms
 
 ## 🚀 Quick Start
 
@@ -71,14 +74,20 @@ A modern, responsive web application built with Laravel, Inertia.js, and React f
    php artisan db:seed
    ```
 
-6. **Build assets**
+6. **Queue setup**
+   ```bash
+   # Start queue worker for background processing
+   php artisan queue:work --queue=enterprise,pro,free
+   ```
+
+7. **Build assets**
    ```bash
    npm run build
    # or for development
    npm run dev
    ```
 
-7. **Start the application**
+8. **Start the application**
    ```bash
    php artisan serve
    ```
@@ -89,9 +98,9 @@ The application includes pre-configured demo accounts for testing:
 
 | Plan | Quota | Priority | Features |
 |------|-------|----------|----------|
-| 🚀 Free | 50 images/request | Standard | Basic processing |
-| ⚡ Pro | 100 images/request | High | Enhanced features |
-| 🏢 Enterprise | 200 images/request | Premium | Full platform access |
+| 🎯 Free | 50 images/request | 1x | Standard processing |
+| ⚡ Pro | 100 images/request | 2x | Enhanced processing speed |
+| 🏢 Enterprise | 200 images/request | 3x | Premium processing speed |
 
 ## 🏗️ Project Structure
 
@@ -102,15 +111,16 @@ laravel-app/
 │   │   ├── Controllers/     # Application controllers
 │   │   └── Middleware/      # Custom middleware
 │   ├── Models/              # Eloquent models
-│   └── Jobs/                # Background jobs
+│   ├── Jobs/                # Background jobs with priority
+│   └── Notifications/       # User notification system
 ├── database/
 │   ├── migrations/          # Database schema
 │   └── seeders/            # Sample data
 ├── resources/
 │   ├── js/
 │   │   ├── Pages/          # Inertia page components
-│   │   ├── components/     # Reusable components
-│   │   └── stores/         # State management
+│   │   ├── Components/     # Reusable components
+│   │   └── app.jsx         # Main application entry
 │   └── views/              # Blade templates
 ├── routes/                  # Application routes
 └── storage/                 # File storage
@@ -137,8 +147,11 @@ SESSION_DRIVER=file
 CACHE_DRIVER=file
 ```
 
-### Database Configuration
-The application uses Laravel's default database configuration. Update your `.env` file with your database credentials.
+### Queue Configuration
+The application uses priority-based queues:
+- `enterprise` - Highest priority (3x)
+- `pro` - Medium priority (2x)
+- `free` - Standard priority (1x)
 
 ## 🎨 UI Components
 
@@ -156,6 +169,7 @@ The application uses Laravel's default database configuration. Update your `.env
 - **Forms**: Polaris TextField, Select, Button components
 - **Layout**: Custom responsive containers and grids
 - **Feedback**: Polaris Banner for error/success messages
+- **Tables**: Dynamic data tables with filtering
 
 ## 🔐 Authentication
 
@@ -176,17 +190,35 @@ The application uses Laravel's default database configuration. Update your `.env
 ### Users Table
 - Basic user information
 - Subscription tier and quota management
-- Usage tracking
+- Priority multiplier calculation
 
 ### Bulk Requests Table
 - Image processing requests
-- Status tracking
-- User association
+- Status tracking (pending, processing, completed)
+- Priority and processing metadata
 
 ### Image Thumbnails Table
 - Processed thumbnail data
 - Original image references
-- Processing metadata
+- Processing status and error handling
+
+## 🚀 Queue System Architecture
+
+### Priority Processing
+- **Enterprise Users**: 3x priority, fastest processing
+- **Pro Users**: 2x priority, enhanced processing
+- **Free Users**: 1x priority, standard processing
+
+### Job Processing
+- Automatic queue assignment based on user tier
+- Priority-based processing delays
+- Simulated Node.js service integration
+- Comprehensive error handling and retry logic
+
+### Real-time Updates
+- Automatic status polling every 10 seconds
+- Progress tracking for bulk requests
+- User notifications for completed requests
 
 ## 🚀 Deployment
 
@@ -205,6 +237,7 @@ The application uses Laravel's default database configuration. Update your `.env
 4. Build production assets: `npm run build`
 5. Configure web server
 6. Set up SSL certificates
+7. Configure queue workers for production
 
 ## 🧪 Testing
 
@@ -219,7 +252,8 @@ npm run test
 
 ### Test Coverage
 - Feature tests for authentication
-- Unit tests for models
+- Unit tests for models and jobs
+- Queue processing tests
 - Frontend component testing
 
 ## 🤝 Contributing
@@ -238,17 +272,20 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For support and questions:
 - Create an issue in the repository
-- Check the documentation
+- Check the technical documentation
 - Review the code examples
 
 ## 🔄 Changelog
 
 ### Version 1.0.0
-- Initial release
-- Authentication system
-- Responsive UI design
-- Basic image processing functionality
+- Initial release with priority queue system
+- Authentication system with subscription tiers
+- Responsive UI design using Shopify Polaris
+- Background job processing with Laravel Queue
+- Real-time status updates and notifications
 
 ---
 
 **Built with ❤️ using Laravel, Inertia.js, and React**
+
+**Senior Backend Engineer Task Implementation - Abdus Samad**
